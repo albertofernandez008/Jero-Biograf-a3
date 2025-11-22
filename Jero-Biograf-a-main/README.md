@@ -1,1 +1,0 @@
-# Jero-Biograf-a
