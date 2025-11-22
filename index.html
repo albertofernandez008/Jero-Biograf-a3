@@ -4,146 +4,166 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Jero — Biografía · Los Chichos</title>
-  <meta name="description" content="Página biográfica de Jero con navegación por secciones a pantalla completa mediante flechas y scroll snap." />
+  <!-- Montserrat Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#161616; --ink:#f3f3f3; --muted:#bdbdbd; --accent:#ffd600; --line:#2a2a2a;
-      --title-size-clamp: clamp(32px, 7vw, 120px);
-      --subtitle-size-clamp: clamp(14px, 2vw, 18px);
+      --bg: #181818;
+      --card: #232529;
+      --ink: #ededed;
+      --muted: #b2b6bc;
+      --accent: #ffd601;
+      --line: #27282a;
+      --radius: 14px;
+      --header: 62px;
+      --spacing: 36px;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Montserrat, system-ui, -apple-system, Segoe UI, Roboto, Arial; }
-    a{color:var(--ink);text-decoration:none}
-    /* Contenedor con snap vertical */
-    .snap-container{
-      height:100svh; overflow-y:auto; overflow-x:hidden; scroll-snap-type:y mandatory; scroll-behavior:smooth;
-      scrollbar-width:none; /* Firefox */ 
+    *{box-sizing:border-box;}
+    html, body {margin:0; padding:0; background:var(--bg); color:var(--ink); font-family:'Montserrat',Arial,sans-serif;}
+    body {min-height:100vh;}
+    a{color:var(--accent); text-decoration:none; transition:color.2s;}
+    a:hover {color:#fff;}
+    .topbar {
+      position:fixed; top:0; left:0; width:100vw; height:var(--header); background:var(--bg);
+      box-shadow:0 1px 8px rgba(0,0,0,0.11); border-bottom:1px solid var(--line); z-index:999;
+      display:flex; align-items:center; justify-content:space-between; padding:0 18px;
     }
-    .snap-container::-webkit-scrollbar{display:none}
-    section.slide{
-      position:relative; min-height:100svh; padding:6vh 8vw; display:grid; grid-template-columns:1.2fr .8fr; gap:4vw;
-      align-items:center; scroll-snap-align:start; border-bottom:1px solid var(--line);
-      background: radial-gradient(1200px 600px at 70% -20%, rgba(255,214,0,.06), transparent 60%);
+    .brand {
+      color:var(--accent); font-weight:800; font-size:22px; letter-spacing:.09em; text-shadow:0 1px 8px #0007;
+      flex:0 0 auto;
     }
-    /* Variante oscura con imagen grande detrás */
-    .hero{
-      background:#0f0f0f;
-      background-image: linear-gradient(180deg, rgba(255,255,255,.02), transparent 40%);
+    .nav-scroll {
+      flex:1 1 0%;
+      overflow-x:auto; white-space:nowrap; scrollbar-width:none; -ms-overflow-style:none;
+      margin:0 20px;
     }
-    .title{
-      font-size:var(--title-size-clamp); line-height:0.9; margin:0 0 12px 0; letter-spacing:-.02em;
+    .nav-scroll::-webkit-scrollbar{display:none;}
+    .nav {
+      display:inline-flex; gap:28px; list-style:none; margin:0; padding:0;
+      white-space:nowrap;
     }
-    .subtitle{ color:var(--muted); font-size:var(--subtitle-size-clamp); max-width:56ch }
-    .big-photo{
-      position:absolute; inset:0; pointer-events:none; opacity:.28; filter:grayscale(1) contrast(1.05);
-      background-position:center; background-size:cover;
+    .nav a {
+      font-size:16px; color:var(--ink); text-decoration:none; letter-spacing:.08em; text-transform:uppercase;
+      padding:4px 0; font-weight:600; border-bottom:2px solid transparent; transition:border .2s, color .2s; display:inline-block;
     }
-    .img-marker{ border:1px dashed #555; border-radius:12px; padding:14px; text-align:center; color:var(--muted); background:rgba(255,255,255,.02)}
-    .content{ position:relative; z-index:2 }
-    .copy{ color:#d7d7d7; max-width:70ch }
-    .kicker{ color:var(--accent); font-weight:600; letter-spacing:.08em; text-transform:uppercase; font-size:12px; margin-bottom:14px }
-    .num{ position:absolute; right:8vw; bottom:6vh; color:#8f8f8f; font-weight:700; font-size:14px; letter-spacing:.08em }
-    /* Flechas */
-    .nav-arrows{
-      position:fixed; right:24px; bottom:24px; display:flex; gap:12px; z-index:9999;
+    .nav a.active, .nav a:hover {color:var(--accent); border-bottom:2px solid var(--accent);}
+    .search { color:var(--muted); font-size:15px; font-weight:500; flex:0 0 auto;}
+    .main-container {
+      width:100vw; min-height:100vh;
+      padding-top:calc(var(--header) + var(--spacing) + 10px);
+      background:var(--bg);
+      display:flex; flex-direction:column;
     }
-    .arrow{
-      width:52px; height:52px; border-radius:50%; border:1px solid #3a3a3a; background:#111; color:var(--ink);
-      display:grid; place-items:center; cursor:pointer; transition:transform .15s ease, background .2s ease, opacity .2s ease;
+    .spacer {height:var(--spacing);background:var(--bg);}
+    .section {
+      display:none;
+      width:100%; min-height:calc(100vh - var(--header) - var(--spacing));
+      animation:fadeIn .5s;
     }
-    .arrow:hover{ transform:translateY(-2px); background:#1a1a1a }
-    .arrow[disabled]{ opacity:.35; pointer-events:none }
-    .arrow svg{ width:22px; height:22px }
-    /* Layout responsivo */
-    @media (max-width:900px){
-      section.slide{ grid-template-columns:1fr; padding:8vh 6vw }
-      .subtitle{ max-width:none }
+    .section.active { display:block; }
+    @keyframes fadeIn { from{opacity:.5;}to{opacity:1;}}
+    .section-content {width:100%; max-width:850px; margin:auto; border-radius:var(--radius); background:rgba(30,30,33,.14); padding:38px 5vw 50px 5vw;}
+    .section--portada {background:linear-gradient(115deg, var(--bg) 68%, #232425 100%);}
+    .grid-portada {display:flex; flex-direction:column; align-items:start; justify-content:center; padding:0 8vw; min-height:70vh; margin-top:20px;}
+    .titulo-portada {font-size:clamp(32px,7vw,54px); font-weight:800; color:var(--accent); line-height:1.13; margin:0 0 12px 0; letter-spacing:-.02em; text-shadow:0 3px 32px #0001;}
+    .sub-portada {color:var(--muted); font-size:19px; margin-bottom:18px; max-width:52ch; min-height:33px; font-weight:500; line-height:1.33;}
+    .num-portada {font-weight:700; font-size:27px; color:var(--accent); letter-spacing:.09em; opacity:.18; padding:18px 0 0 0;}
+    .foto-portada {width:370px; max-width:97vw; height:auto; border-radius:var(--radius); margin:auto; align-self:center; box-shadow:0 8px 44px rgba(0,0,0,0.3); filter:grayscale(.95) contrast(1.01); background:var(--card); border:3px solid var(--line); margin-bottom:28px;}
+    .card-lateral {background:var(--card); border-radius:var(--radius); box-shadow:0 2px 20px #0008; color:var(--muted); font-size:15px; padding:14px 16px; margin-top:14px; width:315px; max-width:91vw; word-break:break-word; opacity:.95;}
+    .title {font-size:clamp(24px,6vw,44px); font-weight:800; color:var(--accent); text-shadow:0 1px 6px #111a; margin-bottom:14px;}
+    .subtitle{ color:var(--muted); font-size:clamp(15px,2vw,20px); margin-bottom:16px;}
+    h2.title, h2 {margin-bottom:12px;}
+    h3 {margin-top:25px; margin-bottom:13px;}
+    .img-responsive {max-width:95vw; width:100%; height:auto; margin:20px auto 14px auto; border-radius:13px; box-shadow:0 3px 28px 0 rgba(40,40,44,.18);}
+    .fragmento-audio {margin:14px auto 18px auto; background:rgba(35,35,40,.18); border-radius:13px; padding:12px 13px; max-width:420px; box-shadow:0 2px 10px rgba(0,0,0,.08);}
+    .fragmento-audio h4{margin:0 0 7px 0;color:var(--accent); font-size:16px;}
+    audio{ width:100%; border-radius:9px;}
+    ul.copy li{margin-bottom:7px;}
+    .arrow-nav{position:fixed; right:19px; bottom:32px; display:flex; gap:15px; z-index:10001;}
+    .arrow-btn{width:48px; height:48px; border-radius:50%; border:none; background:var(--accent); color:var(--bg); display:grid; place-items:center; font-size:25px; cursor:pointer; font-weight:800; box-shadow:0 2px 15px rgba(0,0,0,.13); border:2px solid #19191a; transition:transform .18s, background .25s;}
+    .arrow-btn:disabled{opacity:.3;pointer-events:none;}
+    .arrow-btn:hover{background:var(--ink);color:var(--bg);}
+    @media (max-width:800px){
+      .topbar {height:52px;}
+      .nav-scroll {margin:0 7px;}
+      .arrow-btn{width:32px;height:32px;font-size:15px;}
+      .card-lateral{font-size:12px; padding:10px;}
+      .titulo-portada{font-size:clamp(19px,9vw,31px);}
     }
-    /* Estilo de textos secundarios */
-    h3{ margin:0 0 8px 0; font-size:22px }
-    p{ margin:10px 0 }
-    ul{ margin:10px 0 0 0; padding-left:18px }
-    li{ margin:6px 0 }
-    /* Cabecera fija minimal */
-    .topbar{ position:fixed; inset:0 0 auto 0; height:56px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; z-index:10000; background:linear-gradient(180deg,rgba(0,0,0,.55),transparent) }
-    .brand{ color:var(--accent); font-weight:700; letter-spacing:.04em }
-    .search{ opacity:.6; font-size:14px }
-    /* Pequeño grid guía (opcional) */
-    .grid-guide{ position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px); background-size: 25% 100%, 100% 25%; pointer-events:none; opacity:.08 }
   </style>
 </head>
 <body>
   <div class="topbar">
-    <div class="brand">JEROS</div>
-    <div class="search">search…</div>
+    <div class="brand">Jeros</div>
+    <div class="nav-scroll"><nav><ul class="nav">
+      <li><a href="#" class="active" data-section="portada">Inicio</a></li>
+      <li><a href="#" data-section="bio">Biografía</a></li>
+      <li><a href="#" data-section="canciones">Canciones</a></li>
+      <li><a href="#" data-section="disco">Discografía</a></li>
+      <li><a href="#" data-section="legado">Legado</a></li>
+    </ul></nav></div>
+    <div class="search">Buscar...</div>
   </div>
-
-  <div id="container" class="snap-container" tabindex="0" aria-label="Secciones biográficas de Jero">
-    
-    <!-- Slide 1: Portada -->
-    <section class="slide hero" aria-label="Portada">
-      <div class="big-photo" style="background-image:url('assets/hero-jero.jpg');"></div>
-      <div class="grid-guide" aria-hidden="true"></div>
-      <div class="content">
-        <div class="kicker">Los Chichos</div>
-        <h1 class="title">Jeros</h1>
-        <p class="subtitle">"Una voz genuina, una pluma sincera, y el alma de la rumba española. Jero transformó las historias cotidianas en himnos de millones, marcando para siempre el sonido y el corazón de Los Chichos. Su música sigue resonando como símbolo de verdad, barrio y esperanza."</p>
-       <img src="Jero-Biograf-a-main/assets/images/Jeros-1024x614_resized.png" alt="Texto alternativo" style="max-width:100%; height:auto;" loading="lazy" />
-      <div></div>
-      <div class="num">001</div>
+  <div class="main-container">
+    <div class="spacer"></div>
+    <!-- Portada -->
+    <section id="portada" class="section section--portada active" role="tabpanel">
+      <div class="grid-portada">
+        <div style="margin-top:2px;">
+          <div class="sub-portada">Los Chichos</div>
+          <div class="titulo-portada">Jeros</div>
+        </div>
+        <div class="sub-portada">"Una voz genuina, una pluma sincera, y el alma de la rumba española. Jero transformó las historias cotidianas en himnos de millones, marcando para siempre el sonido y el corazón de Los Chichos. Su música sigue resonando como símbolo de verdad, barrio y esperanza."</div>
+        <img src="Jero-Biograf-a-main/assets/images/Jeros-1024x614_resized.png" alt="Jero retrato" class="foto-portada" />
+        <div class="card-lateral">
+          Juan Antonio Jiménez Muñoz, más conocido como Jero, fue el principal compositor y vocalista del legendario grupo Los Chichos. Nacido en Valladolid en 1951, su voz y sus letras revolucionaron la rumba española en los años 70 y 80.
+        </div>
+        <div class="num-portada">001</div>
+      </div>
     </section>
-
-    <!-- Slide 2: Biografía -->
-    <section class="slide" aria-label="Biografía">
-      <div class="content">
-        <h2 class="title" style="font-size:clamp(28px,4.2vw,64px)">Biografía</h2>
+    <!-- Biografía -->
+    <section id="bio" class="section section--bio" role="tabpanel">
+      <div class="section-content">
+        <h2 class="title">Biografía</h2>
         <p class="copy">Juan Antonio Jiménez Muñoz, más conocido como Jero, fue el principal compositor y vocalista del legendario grupo Los Chichos. Nacido en Valladolid en 1951, su voz y sus letras revolucionaron la rumba española en los años 70 y 80. Jero destacó por su capacidad única para contar historias de la calle y sentimientos intensos, reflejando en sus canciones la vida cotidiana, la lucha y las esperanzas de varias generaciones. Su paso por Los Chichos dejó huella indeleble en la música popular y consolidó su figura como uno de los grandes referentes de la rumba moderna en España.</p>
-        <img src="Jero-Biograf-a-main/assets/images/Sin-titulo-1-1-1024x576.jpg" alt="Texto alternativo" style="max-width:100%; height:auto;" loading="lazy" />
-      <div>
+        <img src="Jero-Biograf-a-main/assets/images/Sin-titulo-1-1-1024x576.jpg" alt="Jero y Los Chichos" class="img-responsive" />
         <h3>Momentos clave</h3>
-        <ul>
+        <ul class="copy">
           <li>Debut con Los Chichos (1974).</li>
           <li>BSO Yo, el Vaquilla (1985).</li>
           <li>Carrera en solitario (1990–1992).</li>
         </ul>
       </div>
-      <div class="num">002</div>
     </section>
-
-    <!-- Slide 3: Canciones -->
-    <section class="slide" aria-label="Canciones">
-      <div class="content">
-        <h2 class="title" style="font-size:clamp(28px,4.2vw,64px)">Canciones</h2>
+    <!-- Canciones -->
+    <section id="canciones" class="section section--canciones" role="tabpanel">
+      <div class="section-content">
+        <h2 class="title">Canciones</h2>
         <p class="copy">Selección de composiciones emblemáticas: Quiero ser libre, Ni más ni menos, Son ilusiones, Amor de compra y venta, BSO Yo, el Vaquilla.</p>
-        <img src="Jero-Biograf-a-main/assets/images/R-7890441-1493671344-1138.jpg" alt="Texto alternativo" style="max-width:100%; height:auto;" loading="lazy" />
-      <div>
+        <img src="Jero-Biograf-a-main/assets/images/R-7890441-1493671344-1138.jpg" alt="Portada de singles" class="img-responsive" />
         <h3>Estilo</h3>
         <p class="copy">Narrativa social, estribillos memorables y guitarras rumberas con producción que evoluciona de los 70 a los 80.</p>
+        <h3>Fragmentos destacados</h3>
+        <div class="fragmento-audio">
+          <h4>Por Mi Culpa</h4>
+          <audio controls>
+            <source src="Jero-Biograf-a-main/assets/audios/por-mi-culpa.mp3" type="audio/mpeg">
+          </audio>
+        </div>
+        <div class="fragmento-audio">
+          <h4>Quiero Ser Libre</h4>
+          <audio controls>
+            <source src="Jero-Biograf-a-main/assets/audios/libre.mp3" type="audio/mpeg">
+          </audio>
+        </div>
       </div>
-      <div class="num">003</div>
-    <h3>Fragmentos destacados</h3>
-<div style="margin-bottom:20px;">
-  <h4>Por Mi Culpa</h4>
-  <audio controls>
-    <source src="Jero-Biograf-a-main/assets/audios/por-mi-culpa.mp3" type="audio/mpeg">
-  </audio>
-</div>
-<div style="margin-bottom:20px;">
-  <h4>Quiero Ser Libre</h4>
-  <audio controls>
-    <source src="Jero-Biograf-a-main/assets/audios/libre.mp3" type="audio/mpeg">
-  </audio>
-  </div>
-        </section>
-
-
-    <!-- Slide 4: Discografía -->
-    <section class="slide" aria-label="Discografía">
-      <div class="content">
-        <h2 class="title" style="font-size:clamp(28px,4.2vw,64px)">Discografía</h2>
+    </section>
+    <!-- Discografía -->
+    <section id="disco" class="section section--disco" role="tabpanel">
+      <div class="section-content">
+        <h2 class="title">Discografía</h2>
         <ul class="copy">
           <li>Ni más, ni menos (1974)</li>
           <li>Esto sí que tiene guasa (1975)</li>
@@ -151,85 +171,55 @@
           <li>Amor de compra y venta (1980)</li>
           <li>Yo, el Vaquilla — BSO (1985)</li>
         </ul>
+        <img src="Jero-Biograf-a-main/assets/images/portada.jpg" alt="Portada Ni más ni menos" class="img-responsive" />
       </div>
-      <img src="Jero-Biograf-a-main/assets/images/portada.jpg" alt="Texto alternativo" style="max-width:100%; height:auto;" loading="lazy" />
-      <div>
-      <div class="num">004</div>
     </section>
-
-    <!-- Slide 5: Legado -->
-    <section class="slide" aria-label="Legado">
-      <div class="content">
-        <h2 class="title" style="font-size:clamp(28px,4.2vw,64px)">Legado</h2>
+    <!-- Legado -->
+    <section id="legado" class="section section--legado" role="tabpanel">
+      <div class="section-content">
+        <h2 class="title">Legado</h2>
         <p class="copy">Figura esencial de la rumba española por convertirla en crónica popular de su tiempo; influencia viva en nuevas generaciones.</p>
+        <img src="Jero-Biograf-a-main/assets/images/guitarra.jpg" alt="Jero guitarra" class="img-responsive" />
       </div>
-      <img src="Jero-Biograf-a-main/assets/images/guitarra.jpg" alt="Texto alternativo" style="max-width:100%; height:auto;" loading="lazy" />
-      <div>
-      <div class="num">005</div>
     </section>
+    <div class="arrow-nav">
+      <button class="arrow-btn" id="prev" aria-label="Sección anterior">&#8592;</button>
+      <button class="arrow-btn" id="next" aria-label="Sección siguiente">&#8594;</button>
+    </div>
   </div>
-
-  <!-- Flechas fijas -->
-  <div class="nav-arrows" aria-label="Controles de navegación">
-    <button id="prev" class="arrow" aria-label="Sección anterior">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
-    <button id="next" class="arrow" aria-label="Sección siguiente">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
-  </div>
-
   <script>
-    // Utilidad: get all sections and snap programmatically al siguiente/anterior
-    const container = document.getElementById('container');
-    const slides = Array.from(document.querySelectorAll('section.slide'));
-    const btnPrev = document.getElementById('prev');
-    const btnNext = document.getElementById('next');
-
-    function currentIndex(){
-      const top = container.scrollTop;
-      const vh = container.clientHeight;
-      // índice del slide “más centrado”
-      let idx = 0, min = Infinity;
-      slides.forEach((s,i)=>{
-        const diff = Math.abs(s.offsetTop - top);
-        if(diff < min){ min = diff; idx = i; }
+    // Navegación entre secciones
+    const sectionNames = ['portada','bio','canciones','disco','legado'];
+    let current = 0;
+    function showSection(idx) {
+      sectionNames.forEach((id,i)=>{
+        document.getElementById(id).classList.toggle('active', idx===i);
+        const nav = document.querySelectorAll('[data-section]');
+        nav.forEach(el=>{
+          el.classList.toggle('active', el.dataset.section===sectionNames[idx]);
+        });
       });
-      // si está a mitad entre secciones, decide por la más cercana al centro
-      const centered = slides.reduce((acc,s,i)=>{
-        const center = s.offsetTop + s.offsetHeight/2;
-        const d = Math.abs((top + vh/2) - center);
-        return d < acc.d ? {i, d} : acc;
-      }, {i:0, d:Infinity});
-      return centered.i ?? idx;
+      document.getElementById('prev').disabled = idx===0;
+      document.getElementById('next').disabled = idx===sectionNames.length-1;
+      current=idx;
+      document.querySelector('.main-container').scrollTop = 0;
+      window.scrollTo({top:0});
     }
-
-    function scrollToIndex(i){
-      i = Math.max(0, Math.min(slides.length-1, i));
-      slides[i].scrollIntoView({behavior:'smooth', block:'start'});
-      updateButtons(i);
-    }
-
-    function updateButtons(i=currentIndex()){
-      btnPrev.disabled = (i===0);
-      btnNext.disabled = (i===slides.length-1);
-    }
-
-    btnPrev.addEventListener('click', ()=> scrollToIndex(currentIndex()-1));
-    btnNext.addEventListener('click', ()=> scrollToIndex(currentIndex()+1));
-
-    // Teclado ← →
-    window.addEventListener('keydown', (e)=>{
-      if(e.key === 'ArrowRight'){ e.preventDefault(); scrollToIndex(currentIndex()+1); }
-      if(e.key === 'ArrowLeft'){ e.preventDefault(); scrollToIndex(currentIndex()-1); }
+    document.getElementById('prev').onclick = ()=> showSection(current-1);
+    document.getElementById('next').onclick = ()=> showSection(current+1);
+    document.querySelectorAll('.nav a').forEach((el,idx)=>{
+      el.addEventListener('click', e=>{
+        e.preventDefault(); showSection(idx);
+        // Corrige scroll para móviles al cambiar sección
+        const topbar = document.querySelector('.topbar');
+        setTimeout(()=> window.scrollTo({top:topbar.offsetHeight+10, behavior:'auto'}), 60);
+      });
     });
-
-    // Actualiza estado al hacer scroll; usa scroll snap events cuando están disponibles
-    container.addEventListener('scroll', ()=> updateButtons());
-    if ('onscrollsnapchange' in container){
-      container.addEventListener('scrollsnapchange', ()=> updateButtons());
-    }
-    updateButtons();
+    window.addEventListener('keydown', e=>{
+      if(e.key==='ArrowRight' && current<sectionNames.length-1){showSection(current+1);}
+      if(e.key==='ArrowLeft' && current>0){showSection(current-1);}
+    });
+    showSection(0);
   </script>
 </body>
 </html>
